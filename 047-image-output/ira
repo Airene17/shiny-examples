@@ -1,0 +1,33 @@
+ setwd( "C:/Users/User/Documents/data")
+ #подключение библиотек
+ library("dplyr")  # нужно для команды glimpse
+ library("psych")  # нужно для команд describe, corr.test
+ library(ggm) # Парные и частные коэффициенты корреляции в ggm
+ 
+ tab1<-read.table("prim342.txt",head=TRUE,dec=".") # ввод данных
+ glimpse(tab1)        # взглянуть на данные
+# corr.test вычисление матрицы коэффициентов корреляции и 
+# проверка значимости коэффициентов корреляции
+R1<-corr.test(tab1,  alpha=.05,ci=TRUE)
+ round(R1$r, 3)   # матрица коэффициентов корреляции, round - округление
+round(R1$t, 3)   # расчетные значения критерия Стьюдента
+qt(0.975,14)     # t статистика - табличное значение, Р=95%
+tab2<-tab1[,-4]   # Удаляем  переменную X3
+ tab3<-tab2[,-4]   # Удаляем  переменную  X4
+ 
+ #  Тестирование мультиколлинеарности
+ 
+ tab4<-tab3[,-1]   
+ library(caret) # нужно для функции findCorrelation()
+ corvar<-cor(tab4)
+ round(corvar, 3)
+# Функция findCorrelation() возращает вектор с номерами переменных,
+# значительно коррелирующих с другими переменными
+highCor = findCorrelation(corvar, cutoff = 0.8, verbose = TRUE,exact =  TRUE)                                
+highCor
+# Удалим эти переменные:
+ fit<-tab4[,-highCor]
+ fit # результат
+library(corrplot) 
+col4 <- colorRampPalette(c("#7F0000","red","#FF7F00","yellow",#7FFF7F", "cyan", "#007FFF", "blue","#00007F")) 
+corrplot(R<-cor(tab1), method="color",  col=col4(20), cl.length=21,          order = "AOE", addCoef.col="red")
